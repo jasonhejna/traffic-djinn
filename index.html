@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <title>Traffic Djinn</title>
     <style>
       html, body, #map-canvas {
@@ -20,6 +21,31 @@ exdate.setDate(exdate.getDate() + exdays);
 var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
 document.cookie=c_name + "=" + c_value;
 }
+function getCookie(c_name)
+{
+var c_value = document.cookie;
+var c_start = c_value.indexOf(" " + c_name + "=");
+if (c_start == -1)
+  {
+  c_start = c_value.indexOf(c_name + "=");
+  }
+if (c_start == -1)
+  {
+  c_value = null;
+  }
+else
+  {
+  c_start = c_value.indexOf("=", c_start) + 1;
+  var c_end = c_value.indexOf(";", c_start);
+  if (c_end == -1)
+  {
+c_end = c_value.length;
+}
+c_value = unescape(c_value.substring(c_start,c_end));
+}
+return c_value;
+}
+
 
 var map;
 
@@ -69,12 +95,12 @@ function initialize() {
 
 
 
-var myLatlng = new google.maps.LatLng(42.331227802187804,-83.71860515625002);
+/*var myLatlng = new google.maps.LatLng(42.331227802187804,-83.71860515625002);
   var marker = new google.maps.Marker({
       position: myLatlng,
       map: map,
       title: 'Hello World!'
-  });  
+  }); */ 
   
 var bounding1 = new google.maps.LatLng(42.326786, -83.705387);//concat this line in python
 
@@ -92,7 +118,7 @@ google.maps.event.addListener(map, 'bounds_changed', function() {
   if(ib==2){
   //console.log(map.getBounds());
   //now parse this object, and write json to cookie
-//var div = document.getElementById('mapinfo');
+var div = document.getElementById('mapinfo');
       //div.innerHTML = map.getBounds();
 
      // document.forms[0].lat0.value = map.getBounds().getSouthWest().lat();
@@ -126,7 +152,7 @@ setCookie("bounds", rjson, "2");
 
 google.maps.event.addDomListener(window, 'load', initialize);
 
-
+console.log(getCookie("bounds"));
     </script>
   </head>
   <body>
