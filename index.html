@@ -13,9 +13,17 @@
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
     <script>
+function setCookie(c_name,value,exdays)
+{
+var exdate=new Date();
+exdate.setDate(exdate.getDate() + exdays);
+var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
+document.cookie=c_name + "=" + c_value;
+}
+
 var map;
 
-var center = new google.maps.LatLng(42.327770, -83.742387);//concatinate Lat Lng here...
+//var center = new google.maps.LatLng(42.327770, -83.742387);//previous concat place in python
 
 var MY_MAPTYPE_ID = 'custom_style';
 
@@ -46,7 +54,6 @@ function initialize() {
 
   var mapOptions = {
     zoom: 14,
-    center: center,
     mapTypeControlOptions: {
       mapTypeIds: [google.maps.MapTypeId.ROADMAP, MY_MAPTYPE_ID]
     },
@@ -68,10 +75,10 @@ var myLatlng = new google.maps.LatLng(42.331227802187804,-83.71860515625002);
       map: map,
       title: 'Hello World!'
   });  
-  //concat these lines
-var bounding1 = new google.maps.LatLng(42.326786, -83.705387);
+  
+var bounding1 = new google.maps.LatLng(42.326786, -83.705387);//concat this line in python
 
-var bounding2 = new google.maps.LatLng(42.303176, -83.687878);
+var bounding2 = new google.maps.LatLng(42.303176, -83.687878);//concat this line in python
 var bounds = new google.maps.LatLngBounds();
 bounds.extend(bounding2);
 bounds.extend(bounding1);
@@ -83,8 +90,27 @@ trafficLayer.setMap(map);
 ib=0;
 google.maps.event.addListener(map, 'bounds_changed', function() {
   if(ib==2){
-  console.log(map.getBounds());
+  //console.log(map.getBounds());
   //now parse this object, and write json to cookie
+var div = document.getElementById('mapinfo');
+      //div.innerHTML = map.getBounds();
+
+     // document.forms[0].lat0.value = map.getBounds().getSouthWest().lat();
+     // document.forms[0].lon0.value = map.getBounds().getSouthWest().lng();
+     // document.forms[0].lat1.value = map.getBounds().getNorthEast().lat();
+     // document.forms[0].lon1.value = map.getBounds().getNorthEast().lng();
+var forcookie = {
+  k: {
+    south_west_lat: map.getBounds().getSouthWest().lat(),
+    south_west_lng: map.getBounds().getSouthWest().lng(),
+    north_east_lat: map.getBounds().getNorthEast().lat(),
+    north_east_lng: map.getBounds().getNorthEast().lng()
+  }
+}
+var rjson = JSON.stringify(forcookie);
+setCookie("bounds", rjson, "2");
+//console.log(map.getBounds().getNorthEast().lng());
+
   }
   ib++;
 });
@@ -105,6 +131,6 @@ google.maps.event.addDomListener(window, 'load', initialize);
   </head>
   <body>
     <div id="map-canvas"></div>
-
+    <div id="mapinfo"></div>
   </body>
 </html>
