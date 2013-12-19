@@ -105,7 +105,7 @@ def decode(point_str):
     points = []
     prev_x = 0
     prev_y = 0
-    for i in xrange(0, len(coords) - 1, 2):
+    for i in range(0, len(coords) - 1, 2):
         if coords[i] == 0 and coords[i + 1] == 0:
             continue
         

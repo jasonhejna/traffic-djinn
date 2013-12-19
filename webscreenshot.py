@@ -20,7 +20,7 @@ class WebScreenShot(QWebView):
         self._loaded = False
         self.loadFinished.connect(self._loadFinished)
 
-    def wait_load(self, delay=3):
+    def wait_load(self, delay=30):
         # process app events until page loaded
         final_time = time.time()+delay
         while time.time() < final_time:

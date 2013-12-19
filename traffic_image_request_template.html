@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>Traffic Djinn</title>
+    <style>
+      html, body, #map-canvas {
+        height: 1024px;
+        width: 1024px;
+        margin: 0px;
+        padding: 0px
+      }
+
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script>
+function setCookie(c_name,value,exdays)
+{
+  var exdate=new Date();
+  exdate.setDate(exdate.getDate() + exdays);
+  var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
+  document.cookie=c_name + "=" + c_value;
+}
+
+function getCookie(c_name)
+{
+  var c_value = document.cookie;
+  var c_start = c_value.indexOf(" " + c_name + "=");
+  if (c_start == -1) {
+    c_start = c_value.indexOf(c_name + "=");
+  }
+  if (c_start == -1){
+    c_value = null;
+  }
+  else {
+    c_start = c_value.indexOf("=", c_start) + 1;
+    var c_end = c_value.indexOf(";", c_start);
+    if (c_end == -1){
+      c_end = c_value.length;
+    }
+    c_value = unescape(c_value.substring(c_start,c_end));
+  }
+  return c_value;
+}
+
+
+var MY_MAPTYPE_ID = 'custom_style';
+
+function initialize() {
+
+  var featureOpts = [
+    {
+      stylers: [
+        { hue: '#7F00FF' },
+        { visibility: 'simplified' },
+        { gamma: 0.5 },
+        { weight: 0.5 }
+      ]
+    },
+    {
+      elementType: 'labels',
+      stylers: [
+        { visibility: 'off' }
+      ]
+    },
+    {
+      featureType: 'water',
+      stylers: [
+        { color: '#551A8B' }
+      ]
+    }
+  ];
+
+  var mapOptions = {
+    zoom: 14,
+    mapTypeControlOptions: {
+      mapTypeIds: [google.maps.MapTypeId.ROADMAP, MY_MAPTYPE_ID]
+    },
+    mapTypeId: MY_MAPTYPE_ID,
+    disableDefaultUI: true,
+    panControl: false,
+    zoomControl: false,
+    scaleControl: false
+  };
+
+
+  var map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
+
+  var bounds = new google.maps.LatLngBounds();
+
+  var boundslist = new Array(BOUNDSHERE)
+
+  for (i=0; i<boundslist.length; i++){
+    bounds.extend(boundslist[i]);
+  }
+
+  map.fitBounds(bounds);
+
+  var trafficLayer = new google.maps.TrafficLayer();
+  trafficLayer.setMap(map);
+
+  ib=0;
+  google.maps.event.addListener(map, 'bounds_changed', function() {
+    if(ib==2){
+    //now parse this object, and write json to cookie
+    var div = document.getElementById('mapinfo');
+    //div.innerHTML = map.getBounds();
+
+    // document.forms[0].lat0.value = map.getBounds().getSouthWest().lat();
+    // document.forms[0].lon0.value = map.getBounds().getSouthWest().lng();
+    // document.forms[0].lat1.value = map.getBounds().getNorthEast().lat();
+    // document.forms[0].lon1.value = map.getBounds().getNorthEast().lng();
+    var forcookie = {
+      k: {
+        south_west_lat: map.getBounds().getSouthWest().lat(),
+        south_west_lng: map.getBounds().getSouthWest().lng(),
+        north_east_lat: map.getBounds().getNorthEast().lat(),
+        north_east_lng: map.getBounds().getNorthEast().lng()
+      }
+    }
+
+    var rjson = JSON.stringify(forcookie);
+    setCookie("bounds", rjson, "2");
+
+  }
+  ib++;
+});
+
+  var styledMapOptions = {
+    name: 'Custom Style'
+  };
+
+  var customMapType = new google.maps.StyledMapType(featureOpts, styledMapOptions);
+
+  map.mapTypes.set(MY_MAPTYPE_ID, customMapType);
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+console.log(getCookie("bounds"));
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas"></div>
+    <div id="mapinfo"></div>
+  </body>
+</html>
