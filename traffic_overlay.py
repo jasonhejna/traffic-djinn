@@ -1,7 +1,8 @@
 import re
 import urllib.request, json
-#import pprint
 from google_maps_polyline import decode as decode_polyline
+#import pprint
+from webscreenshot import WebScreenShot
 
 def _write_traffic_html(latbnd, lngbnd, filename):
     coord = []
@@ -10,7 +11,7 @@ def _write_traffic_html(latbnd, lngbnd, filename):
             coord.append((la, ln))
 
     # build coord javascript array
-    coord_str = ["new google.maps.LatLng({},{})".format(c[0], c[1]) for c in coord];
+    coord_str = ["new google.maps.LatLng({},{})".format(c[1], c[0]) for c in coord];
 
     s = ", ".join(coord_str)
 
@@ -23,7 +24,7 @@ def _write_traffic_html(latbnd, lngbnd, filename):
         f.write(re.sub(r"BOUNDSHERE", s, template))
 
 
-def traffic_overlay(waypoints, time):
+def traffic_overlay(waypoints, time, wait=5):
     # sanity check
     if len(waypoints) < 2: raise ValueError
 
@@ -62,11 +63,28 @@ def traffic_overlay(waypoints, time):
             else:
                 coord.extend(c)
 
+    # temporary html file
+    html_file = "_map.html"
+
     # find min/max lat/lng
     lats = [x[0] for x in coord]
     lngs = [x[1] for x in coord]
-    _write_traffic_html((min(lats), max(lats)), (min(lngs), max(lngs)), "map.html")
+    _write_traffic_html((min(lats), max(lats)), (min(lngs), max(lngs)), html_file)
+
+    # take screenshot
+    S = WebScreenShot()
+    image = S.capture(html_file, wait=wait)
+
+    # bounds are returned in a cookie (ohh la la)
+    cookie = S.get_cookies()
+    bounds = json.loads(cookie[0])['k']
+    print(bounds)
+
+    # save an image for fun
+    img_file = "_img.jpg"
+    image.save(img_file)
+
 
 if __name__ =="__main__":
     waypoints = ["104 West St. New York, NY", "288 West St. New York, NY", "Lincoln Tunnel New York, NY"]
-    traffic_overlay(waypoints, 0)
+    traffic_overlay(waypoints, 0, wait=20)

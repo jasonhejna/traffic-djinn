@@ -99,32 +99,21 @@ function initialize() {
   var trafficLayer = new google.maps.TrafficLayer();
   trafficLayer.setMap(map);
 
-  ib=0;
-  google.maps.event.addListener(map, 'bounds_changed', function() {
-    if(ib==2){
-    //now parse this object, and write json to cookie
-    var div = document.getElementById('mapinfo');
-    //div.innerHTML = map.getBounds();
-
-    // document.forms[0].lat0.value = map.getBounds().getSouthWest().lat();
-    // document.forms[0].lon0.value = map.getBounds().getSouthWest().lng();
-    // document.forms[0].lat1.value = map.getBounds().getNorthEast().lat();
-    // document.forms[0].lon1.value = map.getBounds().getNorthEast().lng();
-    var forcookie = {
-      k: {
-        south_west_lat: map.getBounds().getSouthWest().lat(),
-        south_west_lng: map.getBounds().getSouthWest().lng(),
-        north_east_lat: map.getBounds().getNorthEast().lat(),
-        north_east_lng: map.getBounds().getNorthEast().lng()
+  google.maps.event.addListener(map, 'bounds_changed', function()
+    {
+      var forcookie = {
+        k: {
+          south_west_lat: map.getBounds().getSouthWest().lat(),
+          south_west_lng: map.getBounds().getSouthWest().lng(),
+          north_east_lat: map.getBounds().getNorthEast().lat(),
+          north_east_lng: map.getBounds().getNorthEast().lng()
+        }
       }
+
+      var rjson = JSON.stringify(forcookie);
+      setCookie("bounds", rjson, "2");
     }
-
-    var rjson = JSON.stringify(forcookie);
-    setCookie("bounds", rjson, "2");
-
-  }
-  ib++;
-});
+  );
 
   var styledMapOptions = {
     name: 'Custom Style'
@@ -137,7 +126,7 @@ function initialize() {
 
 google.maps.event.addDomListener(window, 'load', initialize);
 
-console.log(getCookie("bounds"));
+//console.log(getCookie("bounds"));
     </script>
   </head>
   <body>
