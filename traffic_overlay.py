@@ -47,7 +47,7 @@ def color_to_value(color):
 
     return values[nearest_color_rgb(color, colors)]
 
-def traffic_overlay(waypoints, time, wait=5):
+def traffic_overlay(waypoints, time, wait=5, debug=False):
     # sanity check
     if len(waypoints) < 2: raise ValueError
 
@@ -99,12 +99,12 @@ def traffic_overlay(waypoints, time, wait=5):
     # take screenshot
     S = WebScreenShot()
     image = S.capture(html_file, wait=wait)
-    image.save("_img.jpg")
 
     # bounds are returned in a cookie (ohh la la)
     cookie = S.get_cookies()
     bounds = json.loads(cookie[0])['k']
 
+    # loop through polyline points and compute overlay value at each point
     image_size = [image.height(), image.width()]
     pplat = image_size[0]/(bounds['upper_right_lat']-bounds['lower_left_lat'])
     pplng = image_size[1]/(bounds['upper_right_lng']-bounds['lower_left_lng'])
@@ -118,9 +118,17 @@ def traffic_overlay(waypoints, time, wait=5):
         v_rgb = (v.red(), v.green(), v.blue())
         val[i] = color_to_value(v_rgb)
 
+        # if debugging, change pixel color to black for each point sampled
+        # and then save the image as _img.jpg
+        if debug:
+            image.setPixel(QPoint(x, y), 0)
+
+    if debug:
+        image.save("_img.jpg")
+
     print(val)
 
 
 if __name__ =="__main__":
-    waypoints = ["332 West St. New York, NY", "Lincoln Hwy New York, NY", "455 12th Ave. New York, NY"]
-    traffic_overlay(waypoints, 0, wait=20)
+    waypoints = ["332 West St. New York, NY", "Lincoln Hwy New York, NY"]
+    traffic_overlay(waypoints, 0, wait=20, debug=True)
