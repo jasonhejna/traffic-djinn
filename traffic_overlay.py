@@ -1,8 +1,12 @@
 import re
 import urllib.request, json
+import math
 from google_maps_polyline import decode as decode_polyline
 #import pprint
 from webscreenshot import WebScreenShot
+from PyQt4.QtCore import QPoint
+
+
 
 def _write_traffic_html(latbnd, lngbnd, filename):
     coord = []
@@ -78,11 +82,19 @@ def traffic_overlay(waypoints, time, wait=5):
     # bounds are returned in a cookie (ohh la la)
     cookie = S.get_cookies()
     bounds = json.loads(cookie[0])['k']
-    print(bounds)
 
-    # save an image for fun
-    img_file = "_img.jpg"
-    image.save(img_file)
+    image_size = [image.height(), image.width()]
+    pplat = image_size[0]/(bounds['upper_right_lat']-bounds['lower_left_lat'])
+    pplng = image_size[1]/(bounds['upper_right_lng']-bounds['lower_left_lng'])
+
+    val = [0] * len(coord)
+    for i, c in enumerate(coord):
+        x = math.floor((c[0] - bounds['lower_left_lng'])*pplng)
+        y = math.floor((bounds['upper_right_lat'] - c[1])*pplat)
+        print(x, y)
+        val[i] = image.pixel(QPoint(x, y))
+
+    print(val)
 
 
 if __name__ =="__main__":

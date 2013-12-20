@@ -88,7 +88,7 @@ function initialize() {
 
   var bounds = new google.maps.LatLngBounds();
 
-  var boundslist = new Array(BOUNDSHERE)
+  var boundslist = new Array(BOUNDSHERE);
 
   for (i=0; i<boundslist.length; i++){
     bounds.extend(boundslist[i]);
@@ -103,10 +103,10 @@ function initialize() {
     {
       var forcookie = {
         k: {
-          south_west_lat: map.getBounds().getSouthWest().lat(),
-          south_west_lng: map.getBounds().getSouthWest().lng(),
-          north_east_lat: map.getBounds().getNorthEast().lat(),
-          north_east_lng: map.getBounds().getNorthEast().lng()
+          lower_left_lat: map.getBounds().getSouthWest().lat(),
+          lower_left_lng: map.getBounds().getSouthWest().lng(),
+          upper_right_lat: map.getBounds().getNorthEast().lat(),
+          upper_right_lng: map.getBounds().getNorthEast().lng()
         }
       }
 
