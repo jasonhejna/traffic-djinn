@@ -5,10 +5,10 @@ from google_maps_polyline import decode as decode_polyline
 #import pprint
 from webscreenshot import WebScreenShot
 from PyQt4.QtCore import QPoint
+from PyQt4.QtGui import QColor
 
 
-
-def _write_traffic_html(latbnd, lngbnd, filename):
+def _write_traffic_html(latbnd, lngbnd, filename, width=1024, height=1024):
     coord = []
     for la in latbnd:
         for ln in lngbnd:
@@ -25,8 +25,27 @@ def _write_traffic_html(latbnd, lngbnd, filename):
 
     # write output html file
     with open(filename, mode="w") as f:
-        f.write(re.sub(r"BOUNDSHERE", s, template))
+        out = re.sub(r"BOUNDSHERE", s, template)
+        out = re.sub(r"WIDTHPX", str(width), out)
+        out = re.sub(r"HEIGHTPX", str(height), out)
+        f.write(out)
 
+def color_to_value(color):
+    green = (55, 168, 28)
+    yellow = (249, 217, 18)
+    red = (125, 0, 0)
+    black = (37, 20, 30)
+    colors = (green, yellow, red, black)
+    values = (1, 2, 3, 4)
+
+    def nearest_color_rgb(c, colors):
+        diff = [0] * len(colors)
+        for i, color in enumerate(colors):
+            for j in range(3):
+                diff[i] += math.fabs(c[j]-color[j])
+        return diff.index(max(diff))
+
+    return values[nearest_color_rgb(color, colors)]
 
 def traffic_overlay(waypoints, time, wait=5):
     # sanity check
@@ -73,11 +92,14 @@ def traffic_overlay(waypoints, time, wait=5):
     # find min/max lat/lng
     lats = [x[0] for x in coord]
     lngs = [x[1] for x in coord]
-    _write_traffic_html((min(lats), max(lats)), (min(lngs), max(lngs)), html_file)
+    img_size = (2048, 2048)
+    _write_traffic_html((min(lats), max(lats)), (min(lngs), max(lngs)),
+        html_file, width=2048, height=2048)
 
     # take screenshot
     S = WebScreenShot()
     image = S.capture(html_file, wait=wait)
+    image.save("_img.jpg")
 
     # bounds are returned in a cookie (ohh la la)
     cookie = S.get_cookies()
@@ -89,14 +111,16 @@ def traffic_overlay(waypoints, time, wait=5):
 
     val = [0] * len(coord)
     for i, c in enumerate(coord):
-        x = math.floor((c[0] - bounds['lower_left_lng'])*pplng)
-        y = math.floor((bounds['upper_right_lat'] - c[1])*pplat)
-        print(x, y)
-        val[i] = image.pixel(QPoint(x, y))
+        x = int((c[0] - bounds['lower_left_lng'])*pplng)
+        y = int((bounds['upper_right_lat'] - c[1])*pplat)
+
+        v = QColor(image.pixel(QPoint(x, y)))
+        v_rgb = (v.red(), v.green(), v.blue())
+        val[i] = color_to_value(v_rgb)
 
     print(val)
 
 
 if __name__ =="__main__":
-    waypoints = ["104 West St. New York, NY", "288 West St. New York, NY", "Lincoln Tunnel New York, NY"]
+    waypoints = ["332 West St. New York, NY", "Lincoln Hwy New York, NY", "455 12th Ave. New York, NY"]
     traffic_overlay(waypoints, 0, wait=20)
