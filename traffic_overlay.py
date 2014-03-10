@@ -126,7 +126,8 @@ def traffic_overlay(waypoints, time, wait=5, debug=False):
     if debug:
         image.save("_img.jpg")
 
-    print(val)
+    print(coord)
+    #print(val)
 
 
 if __name__ =="__main__":
